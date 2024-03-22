@@ -3,10 +3,31 @@
 ## Introduction
 Scale is a hypothetical front-end framework designed to provide a simple, HTML-first syntax while leveraging the concept of "islands" for efficient loading and initialization of interactive components.
 
+## How to run
+
+1. Clone the repository
+2. We use Deno 🦕, no need to install any dependencies
+3. Run `deno run -A main.ts`
+
 ## Syntax
 
 Scale components are written in `.scale` files, which contain HTML-like syntax, JavaScript, and CSS. Here's a basic example:
 
+This is the current syntax for Scale components:
+```html
+<script>
+  let counter = 0;
+  const increment = () => counter++;
+  const decrement = () => counter--;
+</script>
+
+<button on:click={decrement}>Decrement</button>
+<div>{counter}</div>
+<button on:click={increment}>Increment</button>
+
+```
+
+This is the proposed syntax for Scale components:
 ```html
 <Scale>
   <template>
