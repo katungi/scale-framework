@@ -13,7 +13,7 @@ Scale is a hypothetical front-end framework designed to provide a simple, HTML-f
 
 Scale components are written in `.scale` files, which contain HTML-like syntax, JavaScript, and CSS. Here's a basic example:
 
-This is the current syntax for Scale components:
+This is the current (proof of concept) syntax for Scale components:
 ```html
 <script>
   let counter = 0;
