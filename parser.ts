@@ -1,38 +1,5 @@
 import * as acorn from "npm:acorn@8.11.3";
-
-export type Fragment = Element | Text | Expression | Script
-export type Element = {
-    type: string,
-    name: string,
-    attributes: Attribute[],
-    children: Fragment[]
-}
-
-export type Attribute = {
-    type: 'Attribute',
-    name: string,
-    value: Expression
-}
-
-export type Text = {
-    type: 'Text',
-    content: string
-}
-
-export type Expression = {
-    type: 'Expression',
-    content: string
-}
-
-export type Script = {
-    type: 'Script',
-    ast: AST
-}
-
-export type AST = {
-    html: Fragment[]
-    script?: acorn.Node
-}
+import { AST, Fragment, Text, Expression, Element, Attribute, Script } from "./type.ts";
 
 export function Parser(content: string) {
     let i = 0
@@ -68,8 +35,8 @@ export function Parser(content: string) {
         readWhileMatching(/[\s\n]/);
     }
 
-    function parseFragments(condition: any) {
-        const fragments = [];
+    function parseFragments(condition: any): Fragment[] {
+        const fragments: Fragment[] = [];
         while (condition()) {
             const fragment = parseFragment();
             if (fragment) {
@@ -97,6 +64,27 @@ export function Parser(content: string) {
         }
     }
 
+    function parseExpression() {
+        if (match('{')) {
+            eat('{');
+            const expression = parseJavaScript();
+            eat('}');
+            return {
+                type: 'Expression',
+                expression,
+            };
+        }
+    }
+
+    function parseText() {
+        const text = readWhileMatching(/[^<{]/);
+        if (text.trim() !== '') {
+            return {
+                type: 'Text',
+                value: text,
+            };
+        }
+    }
     function parseElement() {
         if (match('<')) {
             eat('<')
@@ -119,10 +107,12 @@ export function Parser(content: string) {
     function parseJavaScript() {
         const js = acorn.parseExpressionAt(content, i, { ecmaVersion: 2022 });
         i = js.end;
+
+        console.log(typeof js)
         return js;
     }
 
-    function parseAttribute() {
+    function parseAttribute(): Attribute {
         const name = readWhileMatching(/[^=]/);
         eat('={');
         const value = parseJavaScript();
@@ -133,8 +123,8 @@ export function Parser(content: string) {
             value,
         };
     }
-    function parseAttributeList() {
-        const attributes = []
+    function parseAttributeList(): Attribute[] {
+        const attributes: Attribute[] = []
         skipWhiteSpaces()
         while (!match('>')) {
             attributes.push(parseAttribute())
@@ -142,6 +132,4 @@ export function Parser(content: string) {
         }
         return attributes
     }
-
-
 }
