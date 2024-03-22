@@ -10,7 +10,7 @@ const parsed = Parser(content)
 
 const analysis = Analyze(parsed)
 
-console.log(analysis)
+// console.log(analysis)
 
 // const analysis = Analyze(parsed)
 

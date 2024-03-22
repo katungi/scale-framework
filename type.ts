@@ -1,11 +1,13 @@
-import { acorn } from "./deps.ts";
+import { acorn, periscopic } from "./deps.ts";
 
 export type Fragment = Element | Text | Expression | Script
 export type Element = {
     type: string,
     name: string,
     attributes: Attribute[],
-    children: Fragment[]
+    children: Fragment[],
+    value: any,
+    expression: any
 }
 
 export type Attribute = {
@@ -21,7 +23,9 @@ export type Text = {
 
 export type Expression = {
     type: 'Expression',
-    content: string
+    content: string,
+    name: string,
+    expression: any
 }
 
 export type Script = {
@@ -31,7 +35,7 @@ export type Script = {
 
 export type AST = {
     html: Fragment[]
-    script?: acorn.Node
+    script: acorn.Node
 }
 
 export type Token<T> = {
@@ -39,3 +43,11 @@ export type Token<T> = {
     willChange: Set<T>,
     willUseInTemplate: Set<T>,
 };
+
+export interface AnalysisResult {
+    variables: Set<string>;
+    willChange: Set<string>;
+    willUseInTemplate: Set<string>;
+    rootScope: periscopic.Scope;
+    map: WeakMap<any, any>; 
+}

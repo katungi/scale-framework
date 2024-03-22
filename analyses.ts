@@ -1,47 +1,51 @@
+// deno-lint-ignore-file
 import { estreewalker, periscopic } from "./deps.ts";
-import { AST, Token } from './type.ts'
+import { AST, Fragment, AnalysisResult } from './type.ts'
 
-export function Analyze(ast: AST) {
-    const result = {
+export function Analyze(ast: AST): AnalysisResult {
+    console.log("Analyzing...", ast)
+    const result: Partial<AnalysisResult> = {
         variables: new Set(),
         willChange: new Set(),
         willUseInTemplate: new Set(),
     }
+    const script = ast.script as any
 
-    const { scope: rootScope, map } = periscopic.analyze(ast.script);
-    result.variables = new Set(rootScope.declarations.keys());
-    result.rootScope = rootScope;
-    result.map = map;
+    const analysis = periscopic.analyze(script);
+    result.variables = new Set(analysis.scope.declarations.keys());
+    result.rootScope = analysis.scope;
+    result.map = analysis.map;
 
-    let currentScope = rootScope;
+    let currentScope: periscopic.Scope | null = analysis.scope;
 
-    estreewalker.walk(ast.script, {
-        enter(node) {
-            if (map.has(node)) currentScope = map.get(node);
-            if (node.type === 'UpdateExpression' && currentScope.find_owner(node.argument.name) === rootScope) {
-                result.willChange.add(node.argument.name);
+    estreewalker.walk(script, {
+        enter(node: any) { // You might want to define a more precise type for `node`
+            if (result.map && result.map.has(node)) currentScope = result.map.get(node);
+            if (node.type === 'UpdateExpression' && currentScope && currentScope.find_owner(node.argument.name) === result.rootScope) {
+               result.willChange && result.willChange.add(node.argument.name); 
             }
         },
-        leave(node) {
-            if (map.has(node)) currentScope = currentScope.parent;
+        leave(node: any) { 
+            if (result.map && result.map.has(node) && currentScope) currentScope = currentScope.parent;
         }
-    })
+    });
 
-    function traverse(fragment) {
+    function traverse(fragment: Fragment) {
         switch (fragment.type) {
             case 'Element':
-                fragment.children.forEach(child => traverse(child));
-                fragment.attributes.forEach(attribute => traverse(attribute));
+                fragment.children?.forEach(child => traverse(child));
+                // @ts-ignore
+                fragment.attributes?.forEach(attribute => traverse(attribute));
                 break;
             case 'Attribute':
-                result.willUseInTemplate.add(fragment.value.name);
+                result.willUseInTemplate && result.willUseInTemplate.add(fragment.value.name);
                 break;
             case 'Expression':
-                result.willUseInTemplate.add(fragment.expression.name);
+                result.willUseInTemplate && result.willUseInTemplate.add(fragment.expression.name);
                 break;
         }
     }
 
     ast.html.forEach(fragment => traverse(fragment));
-    return result
+    return result as AnalysisResult;
 }
