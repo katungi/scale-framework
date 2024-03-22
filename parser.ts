@@ -40,6 +40,7 @@ export function Parser(content: string) {
         while (condition()) {
             const fragment = parseFragment();
             if (fragment) {
+                // @ts-ignore
                 fragments.push(fragment);
             }
         }

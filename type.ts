@@ -33,3 +33,9 @@ export type AST = {
     html: Fragment[]
     script?: acorn.Node
 }
+
+export type Token<T> = {
+    variables: Set<T>,
+    willChange: Set<T>,
+    willUseInTemplate: Set<T>,
+};
