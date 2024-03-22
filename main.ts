@@ -1,5 +1,6 @@
-import { Parser } from "./parser.ts";
-import { Analyze } from "./analyses.ts";
+import { Parser } from "./compiler/parser.ts";
+import { Analyze } from "./compiler/analyses.ts";
+import { Generate } from "./compiler/generator.ts";
 
 const decode = new TextDecoder("utf-8")
 const fileContent = Deno.readFileSync("./app/app.scale")
@@ -10,10 +11,6 @@ const parsed = Parser(content)
 
 const analysis = Analyze(parsed)
 
-// console.log(analysis)
+const generatedCode = Generate(parsed, analysis)
 
-// const analysis = Analyze(parsed)
-
-// const generatedCode = Generate(analysis)
-
-// Deno.writeFileSync("./app/app.gen.js", new TextEncoder().encode(generatedCode))
+Deno.writeFileSync("./app/app.gen.js", new TextEncoder().encode(generatedCode))

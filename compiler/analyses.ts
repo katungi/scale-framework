@@ -1,9 +1,8 @@
 // deno-lint-ignore-file
-import { estreewalker, periscopic } from "./deps.ts";
-import { AST, Fragment, AnalysisResult } from './type.ts'
+import { estreewalker, periscopic } from "../deps.ts";
+import { AST, Fragment, AnalysisResult } from '../type.ts'
 
 export function Analyze(ast: AST): AnalysisResult {
-    console.log("Analyzing...", ast)
     const result: Partial<AnalysisResult> = {
         variables: new Set(),
         willChange: new Set(),

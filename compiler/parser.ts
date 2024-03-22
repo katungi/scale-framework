@@ -1,5 +1,5 @@
 import * as acorn from "npm:acorn@8.11.3";
-import { AST, Fragment, Text, Expression, Element, Attribute, Script } from "./type.ts";
+import { AST, Fragment, Text, Expression, Element, Attribute, Script } from "../type.ts";
 
 export function Parser(content: string) {
     let i = 0
@@ -94,6 +94,7 @@ export function Parser(content: string) {
             eat('>')
             const endTag = `</${tagName}>`
 
+            // @ts-ignore
             const element: Element = {
                 type: 'Element',
                 name: tagName,
@@ -108,8 +109,6 @@ export function Parser(content: string) {
     function parseJavaScript() {
         const js = acorn.parseExpressionAt(content, i, { ecmaVersion: 2022 });
         i = js.end;
-
-        console.log(typeof js)
         return js;
     }
 
